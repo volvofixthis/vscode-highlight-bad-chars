@@ -75,14 +75,29 @@ export function activate(context: vscode.ExtensionContext) {
         '\u00B8', // cadilla
         '\u01C0', // latin letter dental click
         '\u2223', // divides
+        'а',
+        'А',
+        'о',
+        'О',
+        'с',
+        'С',
+        'х',
+        'Х',
+        'р',
+        'Р',
+        'к',
+        'К',
+        'т',
+        'Т',
+        'Н',
+        'е',
+        'Е'
     ];
     
     let additionalChars = vscode.workspace.getConfiguration('highlight-bad-chars').additionalUnicodeChars;
     let charRegExp = '[' + chars.join('') + additionalChars.join('') + ']';
-    let activeEditor = vscode.window.activeTextEditor;
-    if (activeEditor) {
-        triggerUpdateDecorations();
-    }
+    let activeEditor = null;
+    triggerUpdateDecorations();
 
     vscode.window.onDidChangeActiveTextEditor(editor => {
         activeEditor = editor;
@@ -92,6 +107,7 @@ export function activate(context: vscode.ExtensionContext) {
     }, null, context.subscriptions);
 
     vscode.workspace.onDidChangeTextDocument(event => {
+        activeEditor = vscode.window.activeTextEditor;
         if (activeEditor && event.document === activeEditor.document) {
         triggerUpdateDecorations();
         }
@@ -99,6 +115,7 @@ export function activate(context: vscode.ExtensionContext) {
 
     var timeout = null;
     function triggerUpdateDecorations() {
+        console.log('highlight-bad-chars running update decorations');
         if (timeout) {
             clearTimeout(timeout);
         }
@@ -106,9 +123,11 @@ export function activate(context: vscode.ExtensionContext) {
     }
 
     function updateDecorations() {
+        activeEditor = vscode.window.activeTextEditor;
         if (!activeEditor) {
             return;
         }
+        console.log('highlight-bad-chars updating decorations');
 
         let regEx = new RegExp(charRegExp, 'g');
         const text = activeEditor.document.getText();
